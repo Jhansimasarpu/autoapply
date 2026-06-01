@@ -1,0 +1,71 @@
+JHANSI MASARPU
+Long Beach, CA | (562) 514-4847 | masarpujhansi@gmail.com | Jhansi.Masarpu01@student.csulb.edu
+linkedin.com/in/jhansi-masarpu | CSULB ID: 035389846
+
+EDUCATION
+Master of Science in Computer Science | California State University, Long Beach (CSULB)   Jan 2026 – Dec 2027
+Coursework: Advanced Analysis of Algorithms, Advanced Topics in Programming Languages, Advanced Software Engineering
+Currently enrolled full-time — 9 credit hours | In good academic standing
+
+Bachelor of Engineering in Computer Science | VTU Belagavi, BITM, India   Dec 2020 – May 2024
+GPA: 3.29/4.0 | Coursework: AI, Machine Learning, Advanced DBMS, Data Structures & Algorithms, Cloud Computing, Big Data Analytics
+
+SKILLS
+Languages: Python, SQL, HTML5, CSS3, PHP
+Databases: PL/SQL, MySQL
+Cloud & DevOps: AWS (EC2, S3, CloudFront), Docker, Kubernetes, CI/CD Pipelines, GitHub Actions
+Tools: Git/GitHub, Microsoft Office Suite, Adobe Photoshop, Adobe Lightroom, Jira, VS Code, Canva
+Social Media: Instagram, TikTok, LinkedIn, Pinterest — content creation, scheduling, community engagement, analytics
+Content Creation: Canva, Adobe Photoshop, Lightroom, CapCut, InShot, Adobe Express — graphics, reels, short-form video
+Practices: Agile/SCRUM, Data Analysis, Report Writing, Stakeholder Communication, Time Management
+
+PROFESSIONAL EXPERIENCE
+Data Engineer | Accenture (Sky Project) — India   Aug 2024 – Dec 2025
+• Analyzed and resolved critical data mismatches across multiple platforms, ensuring data integrity and reporting accuracy
+• Collaborated with cross-functional teams to validate and apply data fixes, improving downstream pipeline reliability
+• Monitored data pipelines to improve operational reliability, reduce latency, and enhance service quality
+• Documented and communicated technical resolutions to both technical and non-technical stakeholders
+• Prepared detailed written reports and managed multiple responsibilities simultaneously in a fast-paced environment
+
+Oracle Cloud Trainee | Accenture   Aug 2024 – Nov 2024
+• Completed hands-on training in Oracle PL/SQL and Oracle APEX Cloud; built and deployed low-code cloud applications
+• Developed and tested cloud-based solutions using Oracle Infrastructure tools, delivering milestones within set timelines
+
+Paid Influencer & Content Creator | India (Part-Time)   2022 – 2024
+• Managed and grew a paid influencer account on Instagram, creating sponsored content for brands
+• Produced short-form video and photo edits using CapCut, InShot, Adobe Lightroom, and Canva
+• Monitored social media trends and applied platform-specific content formats to maximize reach and engagement
+• Pitched and executed content ideas independently; engaged with community through comments, messages, and mentions
+
+CAMPUS & LEADERSHIP ACTIVITIES
+Senator – College of Engineering | CSULB Associated Students Inc. (ASI)   Spring 2026
+• Elected representative for Hung Family College of Engineering — advocate for student academic needs and campus resources
+• Participate in bi-weekly Senate meetings to review legislation, fund appropriations, and university policy initiatives
+• Collaborate with faculty, Dean's office, and student organizations to address engineering student concerns
+
+Head – Event Organizing Committee (Bhoomika In-House Magazine) | India   May 2023 – Jun 2024
+• Planned and executed end-to-end event operations for 1,000+ participants
+• Directed a team of 8+ members, managing production timelines and cohesive visual output
+• Captured and curated digital content including announcements, promotional assets, and campaign materials
+• Analyzed engagement metrics and attendance data to improve communication strategies
+
+PROJECTS
+FINEASEE – Multilingual Financial Calculator with SMS Integration   Aug 2023 – May 2024
+• Built multilingual web app (ASP.NET Core) supporting 6 languages to improve financial literacy for underserved communities
+• Implemented personalized SMS notification system via RESTful API; integrated real-time AI chatbot for user support
+
+Vertical Lift Bridge Simulation   May 2023 – Sep 2023
+• Designed OpenGL-based simulation with accurate motion control using mathematical transformations
+
+Restaurant Management System   Oct 2022 – May 2023
+• Designed MySQL database schema for reservations, billing, and inventory; optimized queries and built user-friendly interface
+
+VOLUNTEER EXPERIENCE
+National Service Scheme (NSS) | Karnataka, India   Sep 2022 – Aug 2023
+• Engaged with diverse community members; developed promotional materials and supported outreach coordination
+
+CERTIFICATIONS
+• Google Cloud Certified – Associate Cloud Engineer (Mar 2024)
+• Oracle Cloud Infrastructure – Foundations & AI Foundation (Feb 2024)
+• Python Foundation Certification – Infosys Springboard (Nov 2023)
+• Java Full Stack – Wipro TalentNext (Jan 2024)

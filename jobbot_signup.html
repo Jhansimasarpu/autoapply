@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoApply — Smart Job Alerts for Students</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #f0f0f5;
+    --muted: #888898;
+    --accent: #7c6fff;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --card: #16161f;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── noise overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.5;
+  }
+
+  /* ── glow blobs ── */
+  .blob { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+  .blob1 { width: 500px; height: 500px; background: rgba(124,111,255,0.12); top: -100px; left: -100px; }
+  .blob2 { width: 400px; height: 400px; background: rgba(78,205,196,0.08); bottom: 0; right: -50px; }
+  .blob3 { width: 300px; height: 300px; background: rgba(255,107,107,0.07); top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+  /* ── nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 1.25rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(10,10,15,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; letter-spacing: -0.02em; }
+  .logo span { color: var(--accent); }
+  .nav-badge { font-size: 11px; background: rgba(124,111,255,0.15); color: var(--accent); border: 1px solid rgba(124,111,255,0.3); padding: 4px 10px; border-radius: 20px; }
+
+  /* ── hero ── */
+  .hero {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 2rem;
+    border: 1px solid var(--border); border-radius: 20px; padding: 6px 16px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent3); animation: pulse 2s infinite; }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1 .line2 { display: block; color: var(--accent); }
+  h1 .line3 { display: block; -webkit-text-stroke: 1px rgba(255,255,255,0.3); color: transparent; }
+
+  .hero-sub {
+    font-size: 1.1rem; color: var(--muted); max-width: 480px;
+    line-height: 1.7; margin-bottom: 3rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  /* ── how it works chips ── */
+  .how-chips {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+    margin-bottom: 3.5rem;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 30px; padding: 8px 16px; font-size: 13px; color: var(--muted);
+  }
+  .chip-icon { font-size: 15px; }
+
+  /* ── signup card ── */
+  .signup-wrap { width: 100%; max-width: 480px; animation: fadeUp 0.6s 0.4s ease both; }
+
+  .signup-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .signup-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent2));
+  }
+
+  .card-title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .card-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.75rem; }
+
+  label { font-size: 12px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; margin-top: 1rem; }
+  label:first-of-type { margin-top: 0; }
+
+  input[type="text"], input[type="email"] {
+    width: 100%; padding: 12px 16px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; outline: none; transition: border 0.2s;
+  }
+  input:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--muted); opacity: 0.6; }
+
+  /* ── keywords ── */
+  .keywords-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-top: 6px;
+  }
+  .kw-item {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 12px; cursor: pointer;
+    font-size: 13px; color: var(--muted); transition: all 0.15s;
+    user-select: none;
+  }
+  .kw-item:hover { border-color: var(--border-hover); color: var(--text); }
+  .kw-item.selected { border-color: var(--accent); color: var(--accent); background: rgba(124,111,255,0.08); }
+  .kw-check { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+  .kw-item.selected .kw-check { background: var(--accent); border-color: var(--accent); }
+  .kw-check-inner { display: none; width: 8px; height: 8px; }
+  .kw-item.selected .kw-check-inner { display: block; }
+  .kw-check-inner svg { width: 8px; height: 8px; fill: white; }
+
+  /* ── file upload ── */
+  .upload-zone {
+    border: 1.5px dashed var(--border); border-radius: 12px;
+    padding: 1.5rem; text-align: center; cursor: pointer;
+    transition: all 0.2s; position: relative; margin-top: 6px;
+  }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: rgba(124,111,255,0.04); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+  .upload-icon { font-size: 28px; margin-bottom: 8px; }
+  .upload-text { font-size: 13px; color: var(--muted); }
+  .upload-text strong { color: var(--accent); font-weight: 500; }
+  .upload-hint { font-size: 11px; color: var(--muted); opacity: 0.6; margin-top: 4px; }
+  .upload-file-name { font-size: 12px; color: var(--accent3); margin-top: 8px; display: none; }
+
+  /* ── submit ── */
+  .submit-btn {
+    width: 100%; margin-top: 1.75rem;
+    padding: 14px; border-radius: 12px; border: none;
+    background: var(--accent); color: white;
+    font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em;
+    position: relative; overflow: hidden;
+  }
+  .submit-btn:hover { background: #9585ff; transform: translateY(-1px); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .fine-print { font-size: 11px; color: var(--muted); opacity: 0.6; text-align: center; margin-top: 1rem; }
+
+  /* ── success state ── */
+  .success-card {
+    display: none;
+    text-align: center; padding: 2rem 1rem;
+  }
+  .success-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .success-title { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .success-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .success-email { color: var(--accent); font-weight: 500; }
+
+  /* ── stats bar ── */
+  .stats-bar {
+    position: relative; z-index: 1;
+    display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── admin section ── */
+  .admin-section {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 4rem auto; padding: 0 2rem;
+  }
+  .admin-toggle {
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; width: fit-content; margin: 0 auto 1.5rem;
+    color: var(--muted); font-size: 13px;
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px;
+    transition: all 0.2s;
+  }
+  .admin-toggle:hover { border-color: var(--border-hover); color: var(--text); }
+  .admin-panel { display: none; }
+  .admin-panel.open { display: block; }
+
+  .admin-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .admin-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
+  .export-btn {
+    padding: 8px 16px; border-radius: 8px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text); font-size: 13px; cursor: pointer; transition: all 0.2s;
+  }
+  .export-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .data-table td { padding: 12px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--surface); }
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 11px; background: rgba(78,205,196,0.1); color: var(--accent3); border: 1px solid rgba(78,205,196,0.2); }
+  .empty-state { text-align: center; padding: 3rem; color: var(--muted); font-size: 14px; }
+
+  .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+
+  /* ── footer ── */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center; padding: 2rem;
+    font-size: 12px; color: var(--muted); opacity: 0.5;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* ── error ── */
+  .field-error { font-size: 11px; color: var(--accent2); margin-top: 4px; display: none; }
+</style>
+</head>
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<nav>
+  <div class="logo">Auto<span>Apply</span></div>
+  <div class="nav-badge">✦ Free for students</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="dot"></span>
+    Powered by AI · Built for CSULB students
+  </div>
+
+  <h1>
+    Your resume,
+    <span class="line2">tailored instantly.</span>
+    <span class="line3">Jobs found for you.</span>
+  </h1>
+
+  <p class="hero-sub">
+    Sign up once. We monitor CareerLink, ADP, Beach Shop & CSULB jobs — then email you a custom-tailored resume PDF the moment a new match is found.
+  </p>
+
+  <div class="how-chips">
+    <div class="chip"><span class="chip-icon">🔍</span> Scans job boards twice daily</div>
+    <div class="chip"><span class="chip-icon">🤖</span> AI tailors your resume per job</div>
+    <div class="chip"><span class="chip-icon">📧</span> PDF emailed to you instantly</div>
+    <div class="chip"><span class="chip-icon">⏱</span> You just submit — 2 min</div>
+  </div>
+
+  <!-- SIGNUP CARD -->
+  <div class="signup-wrap">
+    <div class="signup-card">
+
+      <div id="form-view">
+        <div class="card-title">Get your job alerts</div>
+        <div class="card-sub">Fill in your details and upload your base resume.</div>
+
+        <label>Full name</label>
+        <input type="text" id="inp-name" placeholder="Jhansi Masarpu">
+        <div class="field-error" id="err-name">Please enter your name</div>
+
+        <label>Email address</label>
+        <input type="email" id="inp-email" placeholder="you@student.csulb.edu">
+        <div class="field-error" id="err-email">Please enter a valid email</div>
+
+        <label>Job categories (pick all that apply)</label>
+        <div class="keywords-grid" id="kw-grid">
+          <div class="kw-item selected" data-kw="part-time">
+            <div class="kw-check"><div class="kw-check-inner"><svg viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+            Part-time
+          </div>
+          <div class="kw-item selected" data-kw="student assistant">
+            <div class="kw-check"><div class="kw-check-inner"><svg viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+            Student assistant
+          </div>
+          <div class="kw-item" data-kw="retail">
+            <div class="kw-check"><div class="kw-check-inner"><svg viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+            Retail
+          </div>
+          <div class="kw-item" data-kw="customer service">
+            <div class="kw-check"><div class="kw-check-inner"><svg viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+            Customer service
+          </div>
+          <div class="kw-item" data-kw="warehouse">
+            <div class="kw-check"><div class="kw-check-inner"><svg viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+            Warehouse
+          </div>
+          <div class="kw-item" data-kw="food beverage">
+            <div class="kw-check"><div class="kw-check-inner"><svg viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+            Food & beverage
+          </div>
+          <div class="kw-item" data-kw="administrative">
+            <div class="kw-check"><div class="kw-check-inner"><svg viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+            Administrative
+          </div>
+          <div class="kw-item" data-kw="csulb">
+            <div class="kw-check"><div class="kw-check-inner"><svg viewBox="0 0 8 8"><path d="M1 4l2 2 4-4" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+            CSULB on-campus
+          </div>
+        </div>
+
+        <label>Upload your resume</label>
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="resume-file" accept=".pdf,.doc,.docx">
+          <div class="upload-icon">📎</div>
+          <div class="upload-text"><strong>Click to upload</strong> or drag & drop</div>
+          <div class="upload-hint">PDF or Word document · max 5MB</div>
+          <div class="upload-file-name" id="file-name-display"></div>
+        </div>
+        <div class="field-error" id="err-file">Please upload your resume</div>
+
+        <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">
+          Start getting job alerts →
+        </button>
+        <div class="fine-print">No spam. Unsubscribe any time. Your resume is only used to tailor applications.</div>
+      </div>
+
+      <!-- SUCCESS STATE -->
+      <div class="success-card" id="success-view">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">You're all set!</div>
+        <div class="success-sub">
+          We'll scan for matching jobs twice a day and email your tailored resume to<br>
+          <span class="success-email" id="success-email-display"></span><br><br>
+          Check your inbox within the next 12 hours for your first alert.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num" id="stat-users">1</div><div class="stat-label">Students signed up</div></div>
+  <div class="stat"><div class="stat-num">4</div><div class="stat-label">Job boards monitored</div></div>
+  <div class="stat"><div class="stat-num">2×</div><div class="stat-label">Daily checks</div></div>
+  <div class="stat"><div class="stat-num">&lt;2 min</div><div class="stat-label">To apply after alert</div></div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-section">
+  <div class="admin-toggle" onclick="toggleAdmin()">
+    🔐 View signups (admin)
+  </div>
+  <div class="admin-panel" id="admin-panel">
+    <div class="admin-header">
+      <div class="admin-title">Signup data</div>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Keywords</th>
+            <th>Resume</th>
+            <th>Signed up</th>
+          </tr>
+        </thead>
+        <tbody id="signup-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state">No signups yet. Share the link to get started!</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  AutoApply · Built for CSULB students · Not affiliated with CSULB or Anthropic
+</footer>
+
+<script>
+  // ── All signups stored in browser localStorage ──
+  function getSignups() {
+    try { return JSON.parse(localStorage.getItem('autoapply_signups') || '[]'); }
+    catch { return []; }
+  }
+  function saveLocal(entry) {
+    const all = getSignups();
+    all.push(entry);
+    localStorage.setItem('autoapply_signups', JSON.stringify(all));
+  }
+
+  // ── Download updated CSV (opens/saves as Excel-compatible file) ──
+  function downloadCSV(signups) {
+    const headers = ['#', 'Name', 'Email', 'Keywords', 'Resume Filename', 'Signed Up'];
+    const rows = signups.map(s => [s.id, s.name, s.email, s.keywords, s.resume, s.signedUp]);
+    const csv = [headers, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g,'\"') + '"').join(',')).join('\r\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'AutoApply_Signups.csv';
+    a.click();
+  }
+
+  // ── Keyword toggles ──
+  document.querySelectorAll('.kw-item').forEach(el => {
+    el.addEventListener('click', () => el.classList.toggle('selected'));
+  });
+
+  // ── File upload ──
+  const fileInput = document.getElementById('resume-file');
+  const uploadZone = document.getElementById('upload-zone');
+  const fileDisplay = document.getElementById('file-name-display');
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) {
+      fileDisplay.textContent = '\u2713 ' + fileInput.files[0].name;
+      fileDisplay.style.display = 'block';
+    }
+  });
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) {
+      fileInput.files = e.dataTransfer.files;
+      fileDisplay.textContent = '\u2713 ' + e.dataTransfer.files[0].name;
+      fileDisplay.style.display = 'block';
+    }
+  });
+
+  // ── Submit ──
+  function handleSubmit() {
+    const name  = document.getElementById('inp-name').value.trim();
+    const email = document.getElementById('inp-email').value.trim();
+    const file  = fileInput.files[0];
+    const kws   = [...document.querySelectorAll('.kw-item.selected')].map(el => el.dataset.kw);
+
+    let valid = true;
+    const showErr = (id, v) => document.getElementById(id).style.display = v ? 'block' : 'none';
+
+    if (!name)  { showErr('err-name', true);  valid = false; } else showErr('err-name', false);
+    if (!email || !email.includes('@')) { showErr('err-email', true); valid = false; } else showErr('err-email', false);
+    if (!file)  { showErr('err-file', true);  valid = false; } else showErr('err-file', false);
+    if (!valid) return;
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    const entry = {
+      id: getSignups().length + 1,
+      name, email,
+      keywords: kws.join(', '),
+      resume: file.name,
+      signedUp: new Date().toLocaleString()
+    };
+
+    saveLocal(entry);
+    const all = getSignups();
+    document.getElementById('stat-users').textContent = all.length;
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('success-email-display').textContent = email;
+    document.getElementById('success-view').style.display = 'block';
+    renderTable();
+  }
+
+  // ── Admin panel ──
+  function toggleAdmin() {
+    const panel = document.getElementById('admin-panel');
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) renderTable();
+  }
+
+  function renderTable() {
+    const signups = getSignups();
+    const tbody = document.getElementById('signup-tbody');
+    const empty = document.getElementById('empty-state');
+    document.getElementById('stat-users').textContent = signups.length || 1;
+    if (!signups.length) { empty.style.display = 'block'; tbody.innerHTML = ''; return; }
+    empty.style.display = 'none';
+    tbody.innerHTML = signups.map(s => `
+      <tr>
+        <td style="color:var(--muted)">${s.id}</td>
+        <td><strong style="font-weight:500">${s.name}</strong></td>
+        <td style="color:var(--accent)">${s.email}</td>
+        <td style="color:var(--muted);font-size:12px">${s.keywords}</td>
+        <td><span class="badge">${s.resume}</span></td>
+        <td style="color:var(--muted);font-size:12px">${s.signedUp}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ── Export CSV (opens in Excel) ──
+  function exportCSV() {
+    const signups = getSignups();
+    if (!signups.length) { alert('No signups yet!'); return; }
+    downloadCSV(signups);
+  }
+
+  // Init
+  document.getElementById('stat-users').textContent = Math.max(1, getSignups().length);
+</script>
+</body>
+</html>
